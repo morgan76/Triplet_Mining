@@ -16,47 +16,14 @@ def embed(embedding_net, features, n_embedding, embed_hop_length, batch_size, de
     with torch.no_grad():
         embedding_net.to(device)
         embedding_net.eval()
-
-
-        if config.architecture == 'Link_predictor_patches':
-            frames = features[0].to(device)
-            frames_synced = features[1].to(device)
-
-
-        else:
-            frames = features.to(device)
-        
-
-        len_out_embedding = 128  #TODO: This should ultimately be a parameter
+        frames = features.to(device)
+        len_out_embedding = 128 
         embeddings = torch.empty((len(frames), len_out_embedding))
         idx = 0
         while (idx * batch_size) < len(frames):
-            
-            if config.architecture in ['Link_predictor_patches', 'ES_GNN_MFCC']:
-                batch = frames[idx * batch_size : (idx + 1) * batch_size]
-                batch_synced = frames_synced[idx * batch_size : (idx + 1) * batch_size]
-                embeddings[idx * batch_size : (idx + 1) * batch_size, :] = embedding_net(batch, batch_synced)[-1]
-                idx += 1
-            else:
-                batch = frames[idx * batch_size : (idx + 1) * batch_size]
-                if config.training_strategy in ['triplet_cov', 'csn_cov', 'vicreg'] or config.architecture in ['CRNN_4']:
-                    embeddings[idx * batch_size : (idx + 1) * batch_size, :] = embedding_net(batch)[0]
-                elif config.architecture == 'EmbedNet_CRNN_branches':
-                    embeddings[idx * batch_size : (idx + 1) * batch_size, :] = embedding_net(batch)[1]
-                elif config.architecture in ['APC', 'Hubert', 'Link_predictor_RNN', 'Link_predictor', 'AN_GCN', 'MLP_', "Link_predictor_2",'Link_predictor_RNN']:
-                    embeddings[idx * batch_size : (idx + 1) * batch_size, :] = embedding_net(batch)[-1]
-                elif config.architecture in ['AN_GCN_multi_level','Link_predictor_AHC']:
-                    if config.annot_level_fine_tune_csn == 0:
-                        embeddings[idx * batch_size : (idx + 1) * batch_size, :] = embedding_net(batch)[-1]
-                    else:
-                        embeddings[idx * batch_size : (idx + 1) * batch_size, :] = embedding_net(batch)[2]
-                elif config.architecture in ['ES_GNN', 'MPN']:
-                        embeddings[idx * batch_size : (idx + 1) * batch_size, :] = embedding_net(batch)[0]
-                elif config.training_strategy in ['csn', 'triplet_off', 'permut', 'supervised','triplet_features']:
-                        embeddings[idx * batch_size : (idx + 1) * batch_size, :] = embedding_net(batch)
-                else:
-                    embeddings[idx * batch_size : (idx + 1) * batch_size, :] = embedding_net(batch)[1]
-                idx += 1
+            batch = frames[idx * batch_size : (idx + 1) * batch_size]
+            embeddings[idx * batch_size : (idx + 1) * batch_size, :] = embedding_net(batch)
+            idx += 1
         del frames
         return embeddings.detach().numpy()
         
