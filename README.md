@@ -28,8 +28,8 @@ dataset/
 
 To segment tracks and save deep embeddings:
 ```
-
 python segment.py --ds_path {path to the dataset} --model_name {trained model name} --bounds {return boundaries and segment labels}
+```
 
 ## Requirements
 ```
