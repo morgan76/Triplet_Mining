@@ -47,4 +47,4 @@ conda env create -f environment.yml
 ```
 
 ## Contact
-morgan.buisson@telecom-paris.fr# Triplet_Mining
+morgan.buisson@telecom-paris.fr
